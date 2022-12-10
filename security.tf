@@ -1,6 +1,6 @@
-resource "aws_security_group" "sg_allow_ssh_instances" {
-  name        = "allow_ssh_instances"
-  description = "Allow SSH and instances inbound traffic"
+resource "aws_security_group" "sg_allow_ssh_ansible" {
+  name        = "allow_ssh_ansible"
+  description = "Allow SSH and ansible inbound traffic"
   vpc_id      = "${aws_vpc.development-vpc.id}"
 
   ingress {
