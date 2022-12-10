@@ -71,3 +71,28 @@ resource "aws_internet_gateway" "development-igw" {
     Name = "${var.environment}-IGW"
   }
 }
+resource "aws_eip" "elastic-ip-for-nat-gw" {
+  vpc                       = true
+  associate_with_private_ip = "10.0.0.5"
+  tags = {
+    Name = "${var.environment}-EIP"
+  }
+}
+resource "aws_nat_gateway" "nat-gw" {
+  allocation_id = "${aws_eip.elastic-ip-for-nat-gw.id}"
+  subnet_id     = "${aws_subnet.public-subnet-1.id}"
+  tags = {
+    Name = "${var.environment}-NATGW"
+  }
+  depends_on = [aws_eip.elastic-ip-for-nat-gw]
+}
+resource "aws_route" "nat-gw-route" {
+  route_table_id         = "${aws_route_table.private-route-table.id}"
+  nat_gateway_id         = "${aws_nat_gateway.nat-gw.id}"
+  destination_cidr_block = "0.0.0.0/0"
+}
+resource "aws_route" "public-internet-igw-route" {
+  route_table_id         = "${aws_route_table.public-route-table.id}"
+  gateway_id             = "${aws_internet_gateway.development-igw.id}"
+  destination_cidr_block = "0.0.0.0/0"
+}
